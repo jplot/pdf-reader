@@ -111,6 +111,9 @@ module MissingToUnicode
         codepoint = signatures[signature(contours)]
         mapping[gid] = codepoint if codepoint
       end
+    rescue TTFunk::Error => e
+      $stderr.puts "unreadable font program (#{e.class}): #{e.message}"
+      nil
     end
 
     def build_reference_index(path)
