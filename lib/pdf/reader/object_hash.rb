@@ -52,12 +52,21 @@ class PDF::Reader
     #: securityHandler
     attr_reader :sec_handler
 
+    # Callable consulted when a font declares no ToUnicode CMap.
+    #: untyped
+    attr_reader :missing_tounicode
+
     # Creates a new ObjectHash object. Input can be a string with a valid filename
     # or an IO-like object.
     #
     # Valid options:
     #
     #   :password - the user password to decrypt the source PDF
+    #
+    #   :missing_tounicode - a callable consulted for each text-converting
+    #                        font that declares no ToUnicode CMap; receives the
+    #                        font, its raw dictionary and this ObjectHash (to
+    #                        resolve references), returns CMap data or nil
     #
     #: ((IO | Tempfile | StringIO | String), ?Hash[Symbol, untyped]) -> void
     def initialize(input, opts = {})
@@ -66,6 +75,7 @@ class PDF::Reader
       @pdf_version = read_version #: Float
       @trailer     = @xref.trailer #: Hash[Symbol, untyped]
       @cache       = opts[:cache] || PDF::Reader::ObjectCache.new #: PDF::Reader::ObjectCache
+      @missing_tounicode = opts[:missing_tounicode] #: untyped
       @sec_handler = NullSecurityHandler.new #: securityHandler
       @sec_handler = SecurityHandlerFactory.build(
         deref(trailer[:Encrypt]),

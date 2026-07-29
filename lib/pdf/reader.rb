@@ -92,6 +92,16 @@ module PDF
   #
   #   reader = PDF::Reader.new("somefile.pdf", :password => "apples")
   #
+  # == Fonts With a Missing ToUnicode CMap
+  #
+  # Text extraction relies on each font's ToUnicode CMap. When a font declares
+  # none, the :missing_tounicode option is consulted: a callable that receives
+  # the font, its raw dictionary and the ObjectHash (to resolve references),
+  # and returns replacement CMap data or nil.
+  #
+  #   reader = PDF::Reader.new("somefile.pdf",
+  #     missing_tounicode: ->(font, dict, objects) { my_cmap_data_for(font) })
+  #
   class Reader
 
     # lowlevel hash-like access to all objects in the underlying PDF
