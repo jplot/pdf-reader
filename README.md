@@ -104,6 +104,32 @@ to UTF-8 before it is passed back from PDF::Reader.
 
 Strings that contain binary data (like font blobs) will be marked as such.
 
+# Fonts With a Missing ToUnicode CMap
+
+Text extraction depends on each font's ToUnicode CMap to map character codes
+back to unicode. Some producers strip that CMap when they rewrite a PDF
+(Ghostscript does when it re-subsets embedded fonts), leaving the text visually
+intact but impossible to extract - it comes out as replacement characters.
+
+pdf-reader can't invent the missing mapping, but the :missing_tounicode option
+lets you supply one. It accepts any callable; it is consulted once per
+text-converting font that declares no ToUnicode CMap, and receives the font,
+its raw dictionary, and the ObjectHash (to resolve references, like the
+embedded font program). Return replacement CMap data to adopt it, or nil to
+leave the font unchanged:
+
+```ruby
+handler = lambda { |font, dict, objects|
+  rebuild_cmap_for(font.basefont) # your mapping source: reference fonts,
+                                  # OCR, prior knowledge of the document...
+}
+
+reader = PDF::Reader.new("somefile.pdf", missing_tounicode: handler)
+```
+
+Fonts that carry their own ToUnicode CMap are never affected, and descendant
+CID fonts are not consulted: their ToUnicode belongs to the Type0 parent.
+
 # Former API
 
 Version 1.0.0 of PDF::Reader introduced a new page-based API that provides
