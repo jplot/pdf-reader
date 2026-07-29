@@ -127,6 +127,9 @@ handler = lambda { |font, dict, objects|
 reader = PDF::Reader.new("somefile.pdf", missing_tounicode: handler)
 ```
 
+A complete working handler — glyph outline matching against reference copies
+of the original fonts — lives in examples/missing_tounicode.rb.
+
 Fonts that carry their own ToUnicode CMap are never affected, and descendant
 CID fonts are not consulted: their ToUnicode belongs to the Type0 parent.
 
