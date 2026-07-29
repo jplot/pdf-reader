@@ -1,6 +1,8 @@
 # typed: false
 # coding: utf-8
 
+require "delegate"
+
 describe PDF::Reader::ObjectHash do
   describe "mixins" do
     it "has enumerable mixed in" do
@@ -35,6 +37,18 @@ describe PDF::Reader::ObjectHash do
         tempfile.write binread(filename)
         tempfile.rewind
         h = PDF::Reader::ObjectHash.new(tempfile)
+
+        expect(h.map { |ref, obj| obj.class }.size).to eql(57)
+      end
+    end
+
+    # Wrappers that delegate to an IO (chunked-download objects, decorators)
+    # quack like an IO without inheriting from it
+    it "correctly loads a PDF via an IO-like object that delegates read and seek" do
+      filename = pdf_spec_file("cairo-unicode")
+
+      File.open(filename, "rb") do |file|
+        h = PDF::Reader::ObjectHash.new(SimpleDelegator.new(file))
 
         expect(h.map { |ref, obj| obj.class }.size).to eql(57)
       end

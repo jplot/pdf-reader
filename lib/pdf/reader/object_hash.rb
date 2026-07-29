@@ -59,9 +59,9 @@ class PDF::Reader
     #
     #   :password - the user password to decrypt the source PDF
     #
-    #: ((IO | Tempfile | StringIO | String), ?Hash[Symbol, untyped]) -> void
+    #: (untyped, ?Hash[Symbol, untyped]) -> void
     def initialize(input, opts = {})
-      @io          = extract_io_from(input) #: IO | Tempfile | StringIO
+      @io          = extract_io_from(input) #: untyped
       @xref        = PDF::Reader::XRef.new(@io) #: PDF::Reader::XRef[PDF::Reader::Reference]
       @pdf_version = read_version #: Float
       @trailer     = @xref.trailer #: Hash[Symbol, untyped]
@@ -708,9 +708,9 @@ class PDF::Reader
       version.to_f
     end
 
-    #: (IO | Tempfile | StringIO | String) -> (IO | Tempfile | StringIO)
+    #: (untyped) -> untyped
     def extract_io_from(input)
-      if input.is_a?(IO) || input.is_a?(StringIO) || input.is_a?(Tempfile)
+      if input.respond_to?(:read) && input.respond_to?(:seek)
         input
       elsif File.file?(input.to_s)
         StringIO.new read_as_binary(input.to_s)
