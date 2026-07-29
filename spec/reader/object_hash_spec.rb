@@ -4,6 +4,21 @@
 require "delegate"
 
 describe PDF::Reader::ObjectHash do
+  describe "the missing_tounicode option" do
+    it "exposes the configured handler" do
+      handler = lambda { |_font, _dict, _objects| nil }
+      h = PDF::Reader::ObjectHash.new(pdf_spec_file("cairo-unicode"), missing_tounicode: handler)
+
+      expect(h.missing_tounicode).to eql(handler)
+    end
+
+    it "defaults to nil" do
+      h = PDF::Reader::ObjectHash.new(pdf_spec_file("cairo-unicode"))
+
+      expect(h.missing_tounicode).to be_nil
+    end
+  end
+
   describe "mixins" do
     it "has enumerable mixed in" do
       filename = pdf_spec_file("cairo-unicode")

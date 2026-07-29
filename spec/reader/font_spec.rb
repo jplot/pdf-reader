@@ -5,6 +5,53 @@ describe PDF::Reader::Font do
 
   let(:object_hash) { PDF::Reader::ObjectHash.allocate }
 
+  describe "the missing_tounicode handler" do
+    let(:cmap_data) do
+      <<~CMAP
+        /CIDInit /ProcSet findresource begin
+        12 dict begin
+        begincmap
+        1 begincodespacerange
+        <00> <ff>
+        endcodespacerange
+        1 beginbfchar
+        <41> <0042>
+        endbfchar
+        endcmap
+        end
+        end
+      CMAP
+    end
+
+    it "supplies a ToUnicode CMap to a font that has none" do
+      handler = lambda { |_font, _dict, _objects| cmap_data }
+      hash = PDF::Reader::ObjectHash.new(pdf_spec_file("cairo-unicode"), missing_tounicode: handler)
+      font = PDF::Reader::Font.new(hash, { Subtype: :Type1, BaseFont: :Helvetica })
+
+      expect(font.to_utf8(0x41)).to eql("B")
+    end
+
+    it "leaves the font unchanged when the handler returns nil" do
+      handler = lambda { |_font, _dict, _objects| nil }
+      hash = PDF::Reader::ObjectHash.new(pdf_spec_file("cairo-unicode"), missing_tounicode: handler)
+      font = PDF::Reader::Font.new(hash, { Subtype: :Type1, BaseFont: :Helvetica })
+
+      expect(font.tounicode).to be_nil
+      expect(font.to_utf8(0x41)).to eql("A")
+    end
+
+    it "is not consulted for a font that declares its own ToUnicode CMap" do
+      calls = []
+      handler = lambda { |font, _dict, _objects| calls << font; nil }
+      hash = PDF::Reader::ObjectHash.new(pdf_spec_file("cairo-unicode"), missing_tounicode: handler)
+      _ref, dict = hash.find { |_r, obj| obj.is_a?(Hash) && obj[:Type] == :Font && obj[:ToUnicode] }
+      font = PDF::Reader::Font.new(hash, dict)
+
+      expect(font.tounicode).to be_a(PDF::Reader::CMap)
+      expect(calls).to be_empty
+    end
+  end
+
   describe "to_utf8()" do
     context "with no ToUnicode CMap" do
       let(:font) { PDF::Reader::Font.new(object_hash, {}) }

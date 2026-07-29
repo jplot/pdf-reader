@@ -98,6 +98,8 @@ class PDF::Reader
       extract_descendants(obj)
       @width_calc = build_width_calculator #: widthCalculator
       @utf8_cache = {} #: Hash[Integer, String]
+
+      apply_missing_tounicode(obj)
     end
 
     #: (Integer | String | Array[Integer | String]) -> String
@@ -152,6 +154,19 @@ class PDF::Reader
     end
 
     private
+
+    # Descendant CID fonts never convert text themselves: ToUnicode lives on
+    # their Type0 parent, so the handler is not consulted for them.
+    #: (Hash[Symbol, untyped]) -> void
+    def apply_missing_tounicode(obj)
+      return unless @tounicode.nil?
+      return if [:CIDFontType0, :CIDFontType2].include?(@subtype)
+
+      handler = @ohash.missing_tounicode or return
+
+      data = handler.call(self, obj, @ohash)
+      @tounicode = PDF::Reader::CMap.new(data) if data
+    end
 
     # Only valid for Type3 fonts
     #
