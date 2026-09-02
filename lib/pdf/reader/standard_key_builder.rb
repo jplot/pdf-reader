@@ -2,7 +2,7 @@
 # typed: strict
 
 require 'digest/md5'
-require 'rc4'
+require 'pdf/reader/rc4'
 
 class PDF::Reader
 
@@ -91,22 +91,21 @@ class PDF::Reader
     #
     #: (String) -> String?
     def auth_owner_pass(pass)
+      owner_key = @owner_key
+      raise MalformedPDFError, "encrypted PDF is missing an owner key" if owner_key.nil?
+
       md5 = Digest::MD5.digest(pad_pass(pass))
       if @revision > 2 then
         50.times { md5 = Digest::MD5.digest(md5) }
         keyBegins = md5[0, @key_length]
         #first iteration decrypt owner_key
-        out = @owner_key
+        out = owner_key
         #RC4 keyed with (keyBegins XOR with iteration #) to decrypt previous out
         19.downto(0).each { |i|
-          # The RC4 gem doen't have type annotations, so the type checker doesn't
-          # know decrypt() returns a string
-          out = TypeCheck.cast_to_string!(
-            RC4.new(xor_each_byte(keyBegins,i)).decrypt(out)
-          )
+          out = Rc4.new(xor_each_byte(keyBegins,i)).decrypt(out)
         }
       else
-        out = RC4.new( md5[0, 5] ).decrypt( @owner_key )
+        out = Rc4.new( md5[0, 5] ).decrypt( owner_key )
       end
       # c) check output as user password
       auth_user_pass( out )
@@ -129,10 +128,10 @@ class PDF::Reader
         #initialize out for first iteration
         out = Digest::MD5.digest(PassPadBytes.pack("C*") + @file_id)
         #zero doesn't matter -> so from 0-19
-        20.times{ |i| out=RC4.new(xor_each_byte(keyBegins, i)).encrypt(out) }
+        20.times{ |i| out=Rc4.new(xor_each_byte(keyBegins, i)).encrypt(out) }
         pass = @user_key.to_s[0, 16] == out
       else
-        pass = RC4.new(keyBegins).encrypt(PassPadBytes.pack("C*")) == @user_key
+        pass = Rc4.new(keyBegins).encrypt(PassPadBytes.pack("C*")) == @user_key
       end
       pass ? keyBegins : nil
     end

@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 require 'digest/md5'
-require 'rc4'
+require 'pdf/reader/rc4'
 
 class PDF::Reader
 
@@ -32,7 +32,7 @@ class PDF::Reader
       (0..2).each { |e| objKey << (ref.id >> e*8 & 0xFF ) }
       (0..1).each { |e| objKey << (ref.gen >> e*8 & 0xFF ) }
       length = objKey.length < 16 ? objKey.length : 16
-      rc4 = RC4.new( Digest::MD5.digest(objKey)[0,length] )
+      rc4 = Rc4.new( Digest::MD5.digest(objKey)[0,length] )
       rc4.decrypt(buf)
     end
 

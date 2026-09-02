@@ -2,7 +2,7 @@
 # which will make the gem filesize irritatingly large
 Gem::Specification.new do |spec|
   spec.name = "pdf-reader"
-  spec.version = "2.15.1"
+  spec.version = "2.16.0"
   spec.summary = "A library for accessing the content of PDF files"
   spec.description = "The PDF::Reader library implements a PDF parser conforming as much as possible to the PDF specification from Adobe"
   spec.license = "MIT"
@@ -36,7 +36,6 @@ Gem::Specification.new do |spec|
 
   # v2.0.0 has some encoding issues with binary data
   spec.add_dependency('Ascii85', '>= 1.0', '< 3.0', '!= 2.0.0')
-  spec.add_dependency('ruby-rc4')
   spec.add_dependency('hashery', '~> 2.0')
   spec.add_dependency('ttfunk')
   spec.add_dependency('afm', '>= 0.2.1', '< 2')

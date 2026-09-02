@@ -1,3 +1,26 @@
+v2.16.0 (9th August 2026)
+- Add new method that use Point(x, y) instead of Array[Integer], for improved typing with sorbet (https://github.com/yob/pdf-reader/pull/578)
+- Support extracting text via ActualText annotations (https://github.com/yob/pdf-reader/pull/587)
+- Accept any IO-like object in PDF::Reader.new() (https://github.com/yob/pdf-reader/pull/607)
+- Expanded type annotations
+- Add dynamically generated RBS type signaturesd to published gem (https://github.com/yob/pdf-reader/pull/580)
+- A few bug fixes to CMap parsing and Unicode extraction
+  - https://github.com/yob/pdf-reader/pull/582
+  - https://github.com/yob/pdf-reader/pull/593
+- Fix occasional exception when parsing PDFDoc strings with invalid bytes (https://github.com/yob/pdf-reader/pull/590)
+- Fox occasional exception parsing differnce tables with an unmatched surrgate pair
+  - https://github.com/yob/pdf-reader/pull/604
+  - https://github.com/yob/pdf-reader/pull/605
+- Reduce object allocations when parsing many PDFs
+  - https://github.com/yob/pdf-reader/pull/595
+  - https://github.com/yob/pdf-reader/pull/596
+  - https://github.com/yob/pdf-reader/pull/598
+  - https://github.com/yob/pdf-reader/pull/599
+  - https://github.com/yob/pdf-reader/pull/600
+  - https://github.com/yob/pdf-reader/pull/601
+- Add truffleruby to the test matrix in CI (https://github.com/yob/pdf-reader/pull/583)
+- Add JRuby 10.1 to the test matrix (https://github.com/yob/pdf-reader/pull/597)
+
 v2.15.1 (28th December 2025)
 - Add ruby 4.0 to the CI matrix (https://github.com/yob/pdf-reader/pull/575)
 - Avoiding raising an error when ToUnicode poins to the wrong object type (https://github.com/yob/pdf-reader/pull/573)
@@ -92,7 +115,7 @@ v2.6.0 (12th November 2021)
 
 v2.5.0 (6th June 2021)
 - bump minimum ruby version to 2.0
-- Correctly handle trascoding to UTF-8 from some fonts that use a difference table [#344](https://github.com/yob/pdf-reader/pull/344/) 
+- Correctly handle trascoding to UTF-8 from some fonts that use a difference table [#344](https://github.com/yob/pdf-reader/pull/344/)
 - Fix some character spacing issues with the TJ operator [#343](https://github.com/yob/pdf-reader/pull/343)
 - Fix crash with some encrypted PDFs [#348](https://github.com/yob/pdf-reader/pull/348/)
 - Fix positions of text on some PDFs with pages rotated 90° [#350](https://github.com/yob/pdf-reader/pull/350/)

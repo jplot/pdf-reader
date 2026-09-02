@@ -3,7 +3,6 @@
 # frozen_string_literal: true
 
 require 'digest/md5'
-require 'rc4'
 
 class PDF::Reader
 
